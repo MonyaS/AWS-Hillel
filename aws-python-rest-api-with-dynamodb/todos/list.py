@@ -1,10 +1,10 @@
 import json
-import logging
 import os
 
 import boto3
 
-from todos import decimalencoder
+from utils.serializer import deserialize_item
+
 dynamodb = boto3.resource("dynamodb")
 
 
@@ -14,11 +14,14 @@ def list_lambda(event, context):
     # fetch all todos from the database
     result = table.scan()
 
-    logging.info(result)
+    items = []
+    for item in result['Items']:
+        items.append(deserialize_item(item))
+
     # create a response
     response = {
         "statusCode": 200,
-        "body": json.dumps(result['Items'], cls=decimalencoder.DecimalEncoder),
+        "body": json.dumps({"items": items}),
     }
 
     return response

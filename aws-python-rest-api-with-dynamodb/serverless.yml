@@ -9,6 +9,7 @@ provider:
   region: us-east-1
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    SECRET_KEY: HXpNzkha/KgJMbhz2bqohpoLNtegPIH72iOwqyVkJ5JvP135OLCt7bwQ/5pQfXUvTOrLkOlfBLRmoJ450Q9qVNpgvwxj8cY2t9nI1AFx6Zg=
   iam:
     role:
       statements:
@@ -23,6 +24,14 @@ provider:
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
+
+  test:
+    handler: todos/test.test
+    events:
+      - http:
+          path: test
+          method: post
+          cors: true
 
   create:
     handler: todos/create.create
