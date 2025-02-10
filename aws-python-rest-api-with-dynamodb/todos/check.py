@@ -3,12 +3,13 @@ import time
 
 import boto3
 
+from utils.auth_decorator import token_required
 from utils.serializer import deserialize_item
 
 dynamodb = boto3.resource("dynamodb")
 
-
-def mark_checked(event, context):
+@token_required
+def mark_checked(event, context,username):
     timestamp = int(time.time() * 1000)
 
     table = dynamodb.Table(os.environ["DYNAMODB_TABLE"])

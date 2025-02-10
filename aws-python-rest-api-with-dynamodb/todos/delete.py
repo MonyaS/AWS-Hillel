@@ -2,10 +2,13 @@ import os
 
 import boto3
 
+from utils.auth_decorator import token_required
+
 dynamodb = boto3.resource("dynamodb")
 
 
-def delete(event, context):
+@token_required
+def delete(event, context, username):
     table = dynamodb.Table(os.environ["DYNAMODB_TABLE"])
 
     # delete the todo from the database

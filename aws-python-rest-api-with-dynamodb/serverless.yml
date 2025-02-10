@@ -21,7 +21,11 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+          Resource: "*"
+
+layers:
+  - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-python311-bcrypt:1
+
 
 functions:
 
@@ -32,6 +36,23 @@ functions:
           path: test
           method: post
           cors: true
+
+  create_user:
+    handler: auth/create_user.create_user
+    events:
+      - http:
+          path: create-user
+          method: post
+          cors: true
+
+  login:
+    handler: auth/login_user.login_user
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
 
   create:
     handler: todos/create.create
@@ -97,3 +118,20 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
+    UsersTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: Users
+
+plugins:
+  - serverless-python-requirements

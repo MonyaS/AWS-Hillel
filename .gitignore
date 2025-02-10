@@ -1,0 +1,5 @@
+.serverless
+*.pyc
+*.pyo
+/aws-python-rest-api-with-dynamodb/node_models
+/aws-python-rest-api-with-dynamodb/node_modules
