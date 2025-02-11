@@ -1,0 +1,67 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create own user:
+
+curl --location 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/create-user' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username":"test1",
+    "password":"test1password1"
+}'
+
+
+
+Login to account:
+request:
+curl --location 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username":"test1",
+    "password":"test1password1"
+}'
+
+response:
+
+{
+    "message": "Login successful",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTI3NzAyNX0.b9NSXAllPnDMrf6WD-GWiLCRQ90zl0saRl1R8WjYM6A"
+}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All todo methods required token header:
+Authorization: "Bearer TOKEN"
+The token has an expiration date, if it has expired, update it via login.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Get items from todo:
+curl --location 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos/ec2fdb0c-e7ea-11ef-bc8f-fb0d8f7cf64d' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTIzNDY1Nn0.14pX7Flb7O9a7CblekOakvIeWlAE-4MfeGdRM4HUA6A'
+
+Create new task:
+curl --location 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTIzNDY1Nn0.14pX7Flb7O9a7CblekOakvIeWlAE-4MfeGdRM4HUA6A' \
+--header 'Content-Type: application/json' \
+--data '{
+    "text": "Test todo 1"
+}'
+
+Get one task:
+curl --location 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos/ec2fdb0c-e7ea-11ef-bc8f-fb0d8f7cf64d' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTIzNDY1Nn0.14pX7Flb7O9a7CblekOakvIeWlAE-4MfeGdRM4HUA6A'
+
+Make task cheked:
+curl --location --request PUT 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos/check/ec2fdb0c-e7ea-11ef-bc8f-fb0d8f7cf64d' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTIzNDY1Nn0.14pX7Flb7O9a7CblekOakvIeWlAE-4MfeGdRM4HUA6A'
+
+Change task data:
+curl --location --request PUT 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos/dd2cb3e7-e84a-11ef-9238-9949825cb843' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTI3NzMzN30.ZR1DAH6EZrjddSAHXSjkQWP5F-oUtQjdL4mUKtfXWzs' \
+--header 'Content-Type: application/json' \
+--data '{
+    "text": "Test todo 2",
+    "checked": false
+}'
+
+Delete task:
+curl --location --request DELETE 'https://x3wwktn0kj.execute-api.us-east-1.amazonaws.com/salabai/todos/ec2fdb0c-e7ea-11ef-bc8f-fb0d8f7cf64d' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSIsImV4cCI6MTczOTIzNDY1Nn0.14pX7Flb7O9a7CblekOakvIeWlAE-4MfeGdRM4HUA6A'

@@ -1,10 +1,11 @@
 import json
+import os
+import uuid
 
-import bcrypt
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
-users_table = dynamodb.Table('Users')
+users_table = dynamodb.Table(os.environ["USER_TABLE"])
 
 
 def create_user(event, context):
@@ -26,18 +27,15 @@ def create_user(event, context):
 
     # Check
     result = users_table.get_item(Key={"username": username})
-    if 'Item' not in result:
+    if 'Item' in result:
         return {
             'statusCode': 400,
             'body': json.dumps({'message': 'Username already exists.'})
         }
 
-    # Hash the password using bcrypt
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
     # Store the user in DynamoDB
     users_table.put_item(
-        Item={'username': username, 'password': hashed_password.decode('utf-8')}
+        Item={"id": str(uuid.uuid1()), 'username': username, 'password': password}
     )
     return {
         'statusCode': 201,
