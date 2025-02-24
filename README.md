@@ -25,3 +25,5 @@ A simple service that converts long URLs into short, easily shareable links.
     📊 Track the number of clicks on each link
     ⏳ Expire datetime for link
 
+# Docs link
+[Documentation](https://documenter.getpostman.com/view/18618101/2sAYdeLBHb)
