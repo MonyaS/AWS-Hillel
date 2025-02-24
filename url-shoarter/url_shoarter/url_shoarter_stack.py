@@ -15,27 +15,30 @@ class UrlShoarterStack(Stack):
 
         # DynamoDB Table
         table = ddb.Table(
-            self, "UrlsTable",
+            self,
+            "UrlsTable",
             partition_key={"name": "short_code", "type": ddb.AttributeType.STRING},
-            removal_policy=ddb.RemovalPolicy.DESTROY
+            removal_policy=ddb.RemovalPolicy.DESTROY,
         )
 
         # Shorten URL Lambda
         shorten_lambda = _lambda.Function(
-            self, "ShortenLambdaSalabai",
+            self,
+            "ShortenLambdaSalabai",
             runtime=_lambda.Runtime.PYTHON_3_10,
             handler="lambdas.shortener.lambda_handler",
             code=_lambda.Code.from_asset("lambda"),
-            environment={"TABLE_NAME": table.table_name}
+            environment={"TABLE_NAME": table.table_name},
         )
 
         # Redirect Lambda
         redirect_lambda = _lambda.Function(
-            self, "RedirectLambdaSalabai",
+            self,
+            "RedirectLambdaSalabai",
             runtime=_lambda.Runtime.PYTHON_3_10,
             handler="lambdas.redirect.lambda_handler",
             code=_lambda.Code.from_asset("lambda"),
-            environment={"TABLE_NAME": table.table_name}
+            environment={"TABLE_NAME": table.table_name},
         )
 
         # Grant permissions to both Lambdas
@@ -43,11 +46,11 @@ class UrlShoarterStack(Stack):
         table.grant_read_data(redirect_lambda)
 
         # API Gateway
-        api = apigw.RestApi(self, "UrlShortenerAPISalabai",
-                            default_cors_preflight_options={
-                                "allow_origins": apigw.Cors.ALL_ORIGINS
-                            }
-                            )
+        api = apigw.RestApi(
+            self,
+            "UrlShortenerAPISalabai",
+            default_cors_preflight_options={"allow_origins": apigw.Cors.ALL_ORIGINS},
+        )
 
         # Shorten URL endpoint
         shorten_resource = api.root.add_resource("shorten")

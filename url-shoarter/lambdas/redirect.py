@@ -19,13 +19,29 @@ def lambda_handler(event, context):
 
     # Check if url has reached max redirections
     if record.get("attempts") and record.get("attempts") <= 0:
-        return {"statusCode": 400, "body": json.dumps({"error": "Max redirect attempts reached"})}
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Max redirect attempts reached"}),
+        }
 
     # Deadline when link must be inactive
     if record.get("end_date") and record.get("end_date") >= int(time.time() * 1000):
         return {"statusCode": 400, "body": json.dumps({"error": "Link expired"})}
 
+    # update the todo in the database
+    table.update_item(
+        Key={"id": event["pathParameters"]["id"]},
+        ExpressionAttributeNames={
+            "#last_use": "last_use",
+        },
+        ExpressionAttributeValues={
+            ":last_use": int(time.time() * 1000)
+        },
+        UpdateExpression="SET #last_use = :last_use",
+        ReturnValues="ALL_NEW",
+    )
+
     return {
         "statusCode": 302,
-        "headers": {"Location": response["Item"]["original_url"]}
+        "headers": {"Location": response["Item"]["original_url"]},
     }

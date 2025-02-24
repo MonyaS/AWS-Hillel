@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     if not event["body"]:
         return {
             "statusCode": 400,
-            "body": json.dumps({"status": False, "message": "No body provided"})
+            "body": json.dumps({"status": False, "message": "No body provided"}),
         }
 
     # Handle not valid body
@@ -28,7 +28,7 @@ def lambda_handler(event, context):
     except JSONDecodeError:
         return {
             "statusCode": 400,
-            "body": json.dumps({"status": False, "message": "Wrong body provided"})
+            "body": json.dumps({"status": False, "message": "Wrong body provided"}),
         }
 
     # Get url from
@@ -41,7 +41,7 @@ def lambda_handler(event, context):
     basic_record = {
         "short_code": short_code,
         "original_url": original_url,
-        "updated_at": int(time.time() * 1000)
+        "last_use": int(time.time() * 1000),
     }
 
     # Get some additional settings
@@ -56,12 +56,15 @@ def lambda_handler(event, context):
     if end_date:
         basic_record["end_date"] = end_date
 
-    table.put_item(
-        Item=basic_record
-    )
+    # Put record to db
+    table.put_item(Item=basic_record)
 
+    # Return shorted url
     return {
         "statusCode": 200,
-        "body": json.dumps({
-                               "shortened_url": f"https://{event['requestContext']['domainName']}/{event['requestContext']['stage']}/{short_code}"})
+        "body": json.dumps(
+            {
+                "shortened_url": f"https://{event['requestContext']['domainName']}/{event['requestContext']['stage']}/{short_code}"
+            }
+        ),
     }
