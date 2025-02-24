@@ -7,7 +7,7 @@ import boto3
 import jwt
 
 dynamodb = boto3.resource('dynamodb')
-users_table = dynamodb.Table('Users')
+users_table = dynamodb.Table(os.environ["USER_TABLE"])
 
 
 def token_required(func):
@@ -29,7 +29,7 @@ def token_required(func):
 
             payload = jwt.decode(token[1], os.environ["SECRET_KEY"], algorithms=["HS256"])
 
-            if payload["expiration"] < datetime.datetime.now():
+            if payload["exp"] < datetime.datetime.now().timestamp():
                 raise jwt.ExpiredSignatureError
 
             username = payload["sub"]

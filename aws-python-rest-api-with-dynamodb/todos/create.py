@@ -29,6 +29,7 @@ def create(event, context, username):
         "checked": False,
         "createdAt": timestamp,
         "updatedAt": timestamp,
+        "user": username,
     }
 
     # write the todo to the database

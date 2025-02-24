@@ -9,6 +9,7 @@ provider:
   region: us-east-1
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    USER_TABLE: ${self:service}-users
     SECRET_KEY: HXpNzkha/KgJMbhz2bqohpoLNtegPIH72iOwqyVkJ5JvP135OLCt7bwQ/5pQfXUvTOrLkOlfBLRmoJ450Q9qVNpgvwxj8cY2t9nI1AFx6Zg=
   iam:
     role:
@@ -22,10 +23,6 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource: "*"
-
-layers:
-  - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-python311-bcrypt:1
-
 
 functions:
 
@@ -111,19 +108,7 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
-    UsersTable:
-      Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: user
             AttributeType: S
         KeySchema:
           - AttributeName: id
@@ -131,7 +116,32 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: Users
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        GlobalSecondaryIndexes: # Добавление секции GSI
+          - IndexName: UsernameIndex  # Название индекса
+            KeySchema:
+              - AttributeName: user
+                KeyType: HASH
+            Projection:
+              ProjectionType: "ALL"  # Можно изменить на KEYS_ONLY или INCLUDE
+            ProvisionedThroughput: # Определение пропускной способности для GSI
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+    UsersTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.USER_TABLE}
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
 
 plugins:
   - serverless-python-requirements

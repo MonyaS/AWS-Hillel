@@ -1,12 +1,12 @@
 import json
+import os
 
-import bcrypt
 import boto3
 
 from utils.jwt_util import create_jwt_token
 
 dynamodb = boto3.resource('dynamodb')
-users_table = dynamodb.Table('Users')
+users_table = dynamodb.Table(os.environ["USER_TABLE"])
 
 
 def login_user(event, context):
@@ -31,7 +31,7 @@ def login_user(event, context):
     user = response['Item']
 
     # Verify the password using bcrypt
-    if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+    if password == user['password']:
         token = create_jwt_token(username)
         return {
             'statusCode': 200,

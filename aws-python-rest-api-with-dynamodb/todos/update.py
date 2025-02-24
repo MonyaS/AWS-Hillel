@@ -15,9 +15,12 @@ dynamodb = boto3.resource("dynamodb")
 def update(event, context, username):
     data = json.loads(event["body"])
     if "text" not in data or "checked" not in data:
-        logging.error("Validation Failed")
-        raise Exception("Couldn't update the todo item.")
-        return
+        response = {
+            "statusCode": 400,
+            'body': json.dumps({'message': 'text and checked fields are required.'})
+        }
+
+        return response
 
     timestamp = int(time.time() * 1000)
 
@@ -28,15 +31,20 @@ def update(event, context, username):
         Key={"id": event["pathParameters"]["id"]},
         ExpressionAttributeNames={
             "#todo_text": "text",
+            "#user": "user"
         },
         ExpressionAttributeValues={
             ":text": data["text"],
-            ":checked": True,
+            ":checked": data["checked"],
             ":updatedAt": timestamp,
+
+            ":username_val": username
         },
         UpdateExpression="SET #todo_text = :text, "
                          "checked = :checked, "
                          "updatedAt = :updatedAt",
+
+        ConditionExpression="#user = :username_val",
         ReturnValues="ALL_NEW",
     )
 
