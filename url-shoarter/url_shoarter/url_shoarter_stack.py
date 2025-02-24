@@ -4,7 +4,9 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_apigateway as apigw,
     aws_dynamodb as ddb,
+    RemovalPolicy
 )
+
 from constructs import Construct
 
 
@@ -18,7 +20,7 @@ class UrlShoarterStack(Stack):
             self,
             "UrlsTable",
             partition_key={"name": "short_code", "type": ddb.AttributeType.STRING},
-            removal_policy=ddb.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
         )
 
         # Shorten URL Lambda
@@ -26,8 +28,8 @@ class UrlShoarterStack(Stack):
             self,
             "ShortenLambdaSalabai",
             runtime=_lambda.Runtime.PYTHON_3_10,
-            handler="lambdas.shortener.lambda_handler",
-            code=_lambda.Code.from_asset("lambda"),
+            handler="shortener.lambda_handler",
+            code=_lambda.Code.from_asset("lambdas"),
             environment={"TABLE_NAME": table.table_name},
         )
 
@@ -36,14 +38,25 @@ class UrlShoarterStack(Stack):
             self,
             "RedirectLambdaSalabai",
             runtime=_lambda.Runtime.PYTHON_3_10,
-            handler="lambdas.redirect.lambda_handler",
-            code=_lambda.Code.from_asset("lambda"),
+            handler="redirect.lambda_handler",
+            code=_lambda.Code.from_asset("lambdas"),
+            environment={"TABLE_NAME": table.table_name},
+        )
+
+        # Info Lambda
+        info_lambda = _lambda.Function(
+            self,
+            "InfoLambdaSalabai",
+            runtime=_lambda.Runtime.PYTHON_3_10,
+            handler="info.lambda_handler",
+            code=_lambda.Code.from_asset("lambdas"),
             environment={"TABLE_NAME": table.table_name},
         )
 
         # Grant permissions to both Lambdas
         table.grant_read_write_data(shorten_lambda)
-        table.grant_read_data(redirect_lambda)
+        table.grant_read_write_data(redirect_lambda)
+        table.grant_read_data(info_lambda)
 
         # API Gateway
         api = apigw.RestApi(
@@ -59,3 +72,6 @@ class UrlShoarterStack(Stack):
         # Redirect endpoint
         redirect_resource = api.root.add_resource("{short_code}")
         redirect_resource.add_method("GET", apigw.LambdaIntegration(redirect_lambda))
+
+        # Info endpoint
+        redirect_resource.add_method("POST", apigw.LambdaIntegration(info_lambda))
