@@ -63,5 +63,5 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps({
-                               "shortened_url": f"https://{event['requestContext']['domainName']}/{event['requestContext']['stage']}/{short_code}"})
+            "shortened_url": f"https://{event['requestContext']['domainName']}/{event['requestContext']['stage']}/{short_code}"})
     }
